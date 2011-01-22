@@ -1,0 +1,11 @@
+{
+  "name": "cmd",
+  "description": "Provides support for building module command line applications with node.",
+  "version": "0.0.0",
+  "repository": {},
+  "author": "Jon Seymour <jon.seymour@gmail.com> (http://orwelliantremors.blogspot.com/)",
+  "main": "lib/cmd.js",
+  "engines": {
+    "node": "*"
+  }
+}
