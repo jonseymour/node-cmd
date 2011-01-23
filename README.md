@@ -175,6 +175,23 @@ This example shows how the parsed() and unparsed() functions of a command can be
 	 $ node example.js random foo bar
 	 unrecognized command: [ "random", "foo", "bar" ]
 
+Reserved Members
+----------------
+Unless otherwise specified, all members of Command instances are considered to be reserved for future use.
+
+Clients of the 'cmd' API may alter the 'object' member of Command instances and may modify any member of the
+object returned by shared(). Other modifications are not supported even if they may currently "work".
+
+So:
+	var aCmd = cmd.createCommand(...);
+
+	aCmd.options.myOpt = ...; // OK - changing a member of .options is allowed
+	aCmd.options = {}; // OK - replacing .options is allowed
+	aCmd.shared().myShared = ...; // OK - putting something in aCmd.shared() is allowed
+
+	aCmd.shared = new function() { ... }; // WRONG - alters the published API
+	aCmd.myFunc = new function() { ... }; // WRONG - alters the reserved name space
+
 Tests
 -----
 Tests for this package can be run by using npm to install expresso, then running:
@@ -191,6 +208,8 @@ be considered unstable and subject to change.
 The stable parts of the API will be documented by tests in test/stable.js. The first release of a stable API will be the 0.1.0 release.
 
 Experimental parts of the API will be documented by tests in test/experimental.js.
+
+NOTE: I will probably rename parsed(),unparsed() to shifted(),unshifted() shortly.
 
 Author
 ------
