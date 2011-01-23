@@ -17,7 +17,7 @@ Synopsis
 	 dispatcher("handler1", args ... );
 
 	 // pass a command to the dispatcher as a command instance.
-	 dispatcher(new cmd.Command("handler1", args ... ));
+	 dispatcher(cmd.createCommand("handler1", args ... ));
 
 Description
 -----------
@@ -25,9 +25,10 @@ cmd.createDispatcher() returns a dispatcher function that uses the specified dis
 to configured handler functions.
 
 Commands can be presented to the dispatcher as:
-	  * a list of arguments, where the first argument specifies a route selector 
-	  * a single array, where the first element specifies a route selector
-	  * an instance of cmd.Command created with new cmd.Command()
+
+* a list of arguments, where the first argument specifies a route selector 
+* a single array, where the first element specifies a route selector
+* an instance of cmd.Command created with cmd.createCommand()
 
 Irrespective of how commands are presented to the dispatcher, commands are always presented to 1-argument handler functions as an instance of cmd.Command.
 
@@ -45,8 +46,8 @@ For example, assume the following declarations...
 	     arg2 = ...,
 	     arg3 = ...;
 
-	 var aCmd1 = new cmd.Command([ arg1, arg2, arg3, ... ]);
-	 var aCmd2 = new cmd.Command(arg1, arg2, arg3, ...);
+	 var aCmd1 = cmd.createCommand([ arg1, arg2, arg3, ... ]);
+	 var aCmd2 = cmd.createCommand(arg1, arg2, arg3, ...);
 
 	 // The following statements are all equivalent ...
 
@@ -59,7 +60,7 @@ For example, assume the following declarations...
 Positional Arguments
 --------------------
 Handler functions can access an array of parsed arguments by invoking the command's parsed() function. 
-As a general rule, these arguments will have already been consumed in the process of identify the handler
+As a general rule, these arguments will have already been consumed in the process of identifying the handler
 to be invoked.
 
 Handler functions may access the remaining unparsed arguments by invoking the command's unparsed()
@@ -75,12 +76,46 @@ will be equivalent to [ arg2, arg3, ... ].
 
 Optional Arguments
 ------------------
-'cmd' is a tool for processing positional arguments in a modular fashion where the first N arguments of the command
-can be used to route the command down a heirarchy of modules.
+'cmd' does not currently offer any support for parsing optional arguments. However, the options
+member variable is reserved for the purpose of passing options along a handler chain, if so required.
 
-'cmd' itself does not currently offer any support for parsing optional arguments. A Command instance, however, 
-does provide an options function that provides access to an object that can be used for expose parsed
-options to command handlers.
+	 var aCmd = cmd.createCommand(positionalArgs);
+	 cmd.options = {
+	 	     // options parsed by some other means.
+	 };
+
+Shared state
+------------
+It is expected that commands may be passed along a chain of handlers. However, it is not
+true that every handler along the instance will see exactly the same command instance. For example,
+when nested command handlers are used, the handlers at different nesting level will see command
+objects that have different implementations of the parsed() and unparsed() functions.
+
+Handlers that need to share state may use the command's shared() function to obtain a reference
+to the command's shared state object. It is up to handlers to choose an appropriate strategy
+to avoid namespace conflicts that might arise between different handlers.
+
+The Command.shift(n) operation
+------------------------------
+The shift operation creates a new Command in which the specified number of unparsed arguments
+have been shifted from the LHS of result of unparsed() and into the RHS of parsed(). 
+
+Note that the original command is unchanged by a shift operation. It also acts as a prototype
+of the shifted command.
+
+	var aCmd = cmd.createCommand("switch1", "switch2", "arg1");
+	var shiftedCmd = aCmd.shift(1);
+
+	aCmd.unparsed() == [ "switch1", "switch2", "arg1" ];
+	aCmd.parsed() == [ ];
+
+	shiftedCmd.unparsed() == [ "switch2", "arg1" ];
+	shiftedCmd.parsed() == [ "switch1" ];
+
+	aCmd !== shiftedCmd
+
+	aCmd.shared() === shiftedCmd.shared();
+	aCmd.options === shiftedCmd.options;
 
 Nested Handlers
 ---------------
@@ -113,17 +148,6 @@ different sub modules of the program are responsible handling different subcomma
 	 $ node someCmd.js bar echo bah
 	 bar hears bah
 
-Shared state
-------------
-It is expected that commands may be passed a long a chain of handlers. However, it is not
-true that every handler along the instance will see exactly the same command instance. For example,
-when nested command handlers are used, the handlers at different nesting level will see command
-objects that have different implementations of the parsed() and unparsed() functions.
-
-Handlers that need to share state may use the command's shared() function to obtain a reference
-to the command's shared state object. It is up to handlers to choose an appropriate strategy
-to avoid namespace conflicts that might arise between different handlers.
-
 Other Examples
 --------------
 This example shows how the parsed() and unparsed() functions of a command can be used.
@@ -146,15 +170,15 @@ This example shows how the parsed() and unparsed() functions of a command can be
 	 $ node example.js help
 	 display this message
 	 $ node example.js showargs foo bar
-	 cmd.parsed: [ "showargs" ]
-	 cmd.unparsed: [ "foo", "bar" ]
+	 cmd.parsed: showargs
+	 cmd.unparsed: foo,bar
 	 $ node example.js random foo bar
 	 unrecognized command: [ "random", "foo", "bar" ]
 
 Tests
 -----
-Tests for this package can be run by installing expresso, then running:
-      expresso test/*.js
+Tests for this package can be run by using npm to install expresso, then running:
+      npm test cmd
 
 API Stability
 -------------
