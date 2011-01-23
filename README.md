@@ -80,7 +80,7 @@ Optional Arguments
 member variable is reserved for the purpose of passing options along a handler chain, if so required.
 
 	 var aCmd = cmd.createCommand(positionalArgs);
-	 cmd.options = {
+	 aCmd.options = {
 	 	     // options parsed by some other means.
 	 };
 
@@ -209,7 +209,15 @@ The stable parts of the API will be documented by tests in test/stable.js. The f
 
 Experimental parts of the API will be documented by tests in test/experimental.js.
 
-NOTE: I will probably rename parsed(),unparsed() to shifted(),unshifted() shortly.
+TODO
+----
+* rename Command.parsed() to Command.shifted()
+* rename Command.unparsed() to Command.unshifted()
+* add configurable support for parsing an options array.
+* document required semantics for handler implementations
+* document special purpose of the unhandled handler
+* change dispatcher implementation so the table is its own artifact.
+* add support for dispatcher chaining
 
 Author
 ------
