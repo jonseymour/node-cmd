@@ -69,7 +69,7 @@ viewed as arguments to be parsed by the handler function itself or by handlers i
 
 In the example above, suppose that arg1 has the value 'switch1' so that dispatchTable[arg1] 
 evaluates to handler1. handler1 will be invoked with its aCmd argument equal to 
-new cmd.Command([ arg1, arg2, arg3, ... ]).shift(1).
+cmd.createCommand([ arg1, arg2, arg3, ... ]).shift(1).
 
 When handler1 is invoked, aCmd.parsed() will be equivalent to [ 'switch1' ] and	aCmd.unparsed() 
 will be equivalent to [ arg2, arg3, ... ].
