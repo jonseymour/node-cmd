@@ -11,6 +11,19 @@
 var cmd=require("cmd"),
     assert=require("assert");
 
+function assertCommandInvariant(aCmd) {
+    assert.isDefined(aCmd);
+    assert.eql(true, aCmd instanceof cmd.Command);
+
+    assert.type(aCmd.unparsed, "function");
+    assert.type(aCmd.parsed, "function");
+    assert.type(aCmd.shift, "function");
+    assert.type(aCmd.shared, "function");
+
+    assert.type(aCmd.options, "object");
+
+}
+
 module.exports = {
     "createDispatcher exists": function() {
 	assert.isDefined(cmd.createDispatcher);
@@ -23,10 +36,15 @@ module.exports = {
 	assert.type(cmd.Command, "function");
     },
     "createCommand() yields an instanceof Command with no unparsed arguments": function() {
-	var result=cmd.createCommand();
-	assert.isDefined(result);
-	assert.eql(true, result instanceof cmd.Command);
-	assert.length(result.unparsed(), 0);
-	assert.length(result.parsed(), 0);
+
+	var aCmd=cmd.createCommand();
+
+	assertCommandInvariant(aCmd);
+
+	assert.eql(aCmd.options, {});
+
+	assert.eql(aCmd.unparsed(), []);
+	assert.eql(aCmd.parsed(), []);
+	assert.eql(aCmd.shared(), {});
     }
 }
