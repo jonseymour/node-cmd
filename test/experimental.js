@@ -20,6 +20,10 @@ function assertCommandInvariant(aCmd) {
     assert.type(aCmd.shift, "function");
     assert.type(aCmd.shared, "function");
 
+    assert.isDefined(aCmd.unshifted());
+    assert.isDefined(aCmd.shifted());
+    assert.isDefined(aCmd.shared());
+
     assert.type(aCmd.options, "object");
 
 }
