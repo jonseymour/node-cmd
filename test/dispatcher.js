@@ -38,7 +38,7 @@ module.exports = {
 	var dispatcher = cmd.createDispatcher({
 		"method": function (cmd) {
 		    cmd.shared().good = true;
-		    cmd.shared().unparsed = cmd.unparsed();
+		    cmd.shared().unshifted = cmd.unshifted();
 		    return cmd;
 		}
 	    });
@@ -48,7 +48,7 @@ module.exports = {
 	assert.isDefined(result.shared());
 	assert.isDefined(result.shared().good);
 	assert.eql(true, result.shared().good);
-	assert.eql(["arg"], result.shared().unparsed);
+	assert.eql(["arg"], result.shared().unshifted);
     },
     "test non-empty dispatcher, valid handler - via anonymous function" : function() {
 	var dispatcher = cmd.createDispatcher({
@@ -71,15 +71,15 @@ module.exports = {
 	var result = dispatcher({ "a": true });
 	assert.isDefined(result);
 	assert.type(result, "object");
-	assert.type(result.parsed, "function");
-	assert.isDefined(result.parsed()[0]);
-	assert.eql(key, result.parsed()[0]);
+	assert.type(result.shifted, "function");
+	assert.isDefined(result.shifted()[0]);
+	assert.eql(key, result.shifted()[0]);
     },
     "test nested dispatch" : function() {
 	var dispatcher = cmd.createDispatcher({
 		"outer": cmd.createDispatcher({
 		    "inner": function(x) {
-			return x.unparsed();
+			return x.unshifted();
 		    }})
 	    });
 	var result = dispatcher("outer", "inner", "args");

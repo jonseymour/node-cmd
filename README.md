@@ -59,11 +59,11 @@ For example, assume the following declarations...
 
 Positional Arguments
 --------------------
-Handler functions can access an array of parsed arguments by invoking the command's parsed() function. 
+Handler functions can access an array of parsed arguments by invoking the command's shifted() function. 
 As a general rule, these arguments will have already been consumed in the process of identifying the handler
 to be invoked.
 
-Handler functions may access the remaining unparsed arguments by invoking the command's unparsed()
+Handler functions may access the remaining unparsed arguments by invoking the command's unshifted()
 function. As a general rule, these arguments have not been used for routing purposes and are usually
 viewed as arguments to be parsed by the handler function itself or by handlers it delegates to.
 
@@ -71,7 +71,7 @@ In the example above, suppose that arg1 has the value 'switch1' so that dispatch
 evaluates to handler1. handler1 will be invoked with its aCmd argument equal to 
 cmd.createCommand([ arg1, arg2, arg3, ... ]).shift(1).
 
-When handler1 is invoked, aCmd.parsed() will be equivalent to [ 'switch1' ] and	aCmd.unparsed() 
+When handler1 is invoked, aCmd.shifted() will be equivalent to [ 'switch1' ] and	aCmd.unshifted() 
 will be equivalent to [ arg2, arg3, ... ].
 
 Optional Arguments
@@ -89,7 +89,7 @@ Shared state
 It is expected that commands may be passed along a chain of handlers. However, it is not
 true that every handler along the instance will see exactly the same command instance. For example,
 when nested command handlers are used, the handlers at different nesting level will see command
-objects that have different implementations of the parsed() and unparsed() functions.
+objects that have different implementations of the shifted() and unshifted() functions.
 
 Handlers that need to share state may use the command's shared() function to obtain a reference
 to the command's shared state object. It is up to handlers to choose an appropriate strategy
@@ -98,7 +98,7 @@ to avoid namespace conflicts that might arise between different handlers.
 The Command.shift(n) operation
 ------------------------------
 The shift operation creates a new Command in which the specified number of unparsed arguments
-have been shifted from the LHS of result of unparsed() and into the RHS of parsed(). 
+have been shifted from the LHS of result of unshifted() and into the RHS of shifted(). 
 
 Note that the original command is unchanged by a shift operation. It also acts as a prototype
 of the shifted command.
@@ -106,11 +106,11 @@ of the shifted command.
 	var aCmd = cmd.createCommand("switch1", "switch2", "arg1");
 	var shiftedCmd = aCmd.shift(1);
 
-	aCmd.unparsed() == [ "switch1", "switch2", "arg1" ];
-	aCmd.parsed() == [ ];
+	aCmd.unshifted() == [ "switch1", "switch2", "arg1" ];
+	aCmd.shifted() == [ ];
 
-	shiftedCmd.unparsed() == [ "switch2", "arg1" ];
-	shiftedCmd.parsed() == [ "switch1" ];
+	shiftedCmd.unshifted() == [ "switch2", "arg1" ];
+	shiftedCmd.shifted() == [ "switch1" ];
 
 	aCmd !== shiftedCmd
 
@@ -127,12 +127,12 @@ different sub modules of the program are responsible handling different subcomma
 
 	 var fooDispatcher = cmd.createDispatcher({
 	     echo: function(cmd) {
-		   console.log("foo hears " + cmd.unparsed())
+		   console.log("foo hears " + cmd.unshifted())
 	     }
 	 });
 	 var barDispatcher = cmd.createDispatcher({
 	     echo: function(cmd) {
-		   console.log("bar hears " + cmd.unparsed())
+		   console.log("bar hears " + cmd.unshifted())
 	     }
 	 });
 
@@ -150,7 +150,7 @@ different sub modules of the program are responsible handling different subcomma
 
 Other Examples
 --------------
-This example shows how the parsed() and unparsed() functions of a command can be used.
+This example shows how the shifted() and unshifted() functions of a command can be used.
 
       // example.js
       var cmd=require("cmd");
@@ -159,11 +159,11 @@ This example shows how the parsed() and unparsed() functions of a command can be
 	       console.log("display this message");
 	 },
 	 showargs: function(aCmd) {
-	       console.log("parsed: " + aCmd.parsed());
-	       console.log("unparsed: " + aCmd.unparsed());
+	       console.log("parsed: " + aCmd.shifted());
+	       console.log("unparsed: " + aCmd.unshifted());
 	 },
 	 unhandled: function(aCmd) {
-	       console.log("unrecognized command: " + aCmd.unparsed());
+	       console.log("unrecognized command: " + aCmd.unshifted());
 	 }
 	 })(process.argv.slice(2));
 
@@ -209,10 +209,13 @@ The stable parts of the API will be documented by tests in test/stable.js. The f
 
 Experimental parts of the API will be documented by tests in test/experimental.js.
 
+Changes
+-------
+* changed name of Command.unparsed to Command.unshifted
+* changed name of Command.parsed to Command.shifted
+
 TODO
 ----
-* rename Command.parsed() to Command.shifted()
-* rename Command.unparsed() to Command.unshifted()
 * add configurable support for parsing an options array.
 * document required semantics for handler implementations
 * document special purpose of the unhandled handler

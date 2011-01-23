@@ -15,8 +15,8 @@ function assertCommandInvariant(aCmd) {
     assert.isDefined(aCmd);
     assert.eql(true, aCmd instanceof cmd.Command);
 
-    assert.type(aCmd.unparsed, "function");
-    assert.type(aCmd.parsed, "function");
+    assert.type(aCmd.unshifted, "function");
+    assert.type(aCmd.shifted, "function");
     assert.type(aCmd.shift, "function");
     assert.type(aCmd.shared, "function");
 
@@ -35,7 +35,7 @@ module.exports = {
 	assert.isDefined(cmd.Command);
 	assert.type(cmd.Command, "function");
     },
-    "createCommand() yields an instanceof Command with no unparsed arguments": function() {
+    "createCommand() yields an instanceof Command with no unshifted arguments": function() {
 
 	var aCmd=cmd.createCommand();
 
@@ -43,8 +43,8 @@ module.exports = {
 
 	assert.eql(aCmd.options, {});
 
-	assert.eql(aCmd.unparsed(), []);
-	assert.eql(aCmd.parsed(), []);
+	assert.eql(aCmd.unshifted(), []);
+	assert.eql(aCmd.shifted(), []);
 	assert.eql(aCmd.shared(), {});
     }
 }
