@@ -10,6 +10,9 @@
      "type": "git",
      "url": "https://github.com/jonseymour/node-cmd"
   },
+  "scripts": {
+     "test": "expresso test/*.js"
+  },
   "engines": {
     "node": "*"
   }
