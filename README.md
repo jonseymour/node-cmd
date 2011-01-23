@@ -21,16 +21,51 @@ Synopsis
 
 Description
 -----------
-cmd.createDispatcher() returns a dispatcher function that uses the specified dispatch table to route commands
-to configured handler functions.
+'cmd' provides an API for constructing modular command dispatchers. The intent is to allow the construction 
+of command line utilities from collections of node.js modules some of which export a command
+dispatcher to the 'cmd' dispatcher framework. 
+
+For example, suppose that a utility called "tool" contains two sub-modules "foo" and "bar". Each of "foo" and "bar" expose a set of commands to the command line. The user might invoke functions of "foo" and "bar" like so:
+
+    $ tool foo list
+    $ tool bar add file
+
+'cmd' can support this with registrations of the form:
+
+      var cmd=require("cmd");
+
+      // in bar.js
+      export.dispatcher = cmd.createDispatcher({ 
+      	"add": function(aCmd) { ... } 
+      });
+
+      // in foo.js
+      export.dispatcher = cmd.createDispatcher({ 
+      	"list": function(aCmd) { ... } 
+      });
+
+      // tool.js
+
+      var foo=require("./foo");
+      var bar=require("./bar");
+
+      var toolDispatcher = cmd.createDispatcher({
+      	  "foo": foo.dispatcher,
+      	  "bar": bar.dispatcher
+      });
+
+      // to invoke the dispatcher
+
+      toolDispatcher(process.argv.slice(2)); 
 
 Commands can be presented to the dispatcher as:
 
-* a list of arguments, where the first argument specifies a route selector 
-* a single array, where the first element specifies a route selector
-* an instance of cmd.Command created with cmd.createCommand()
+* an instance of cmd.Command created with cmd.createCommand() 
+* a single array
+* a list of arguments
 
-Irrespective of how commands are presented to the dispatcher, commands are always presented to 1-argument handler functions as an instance of cmd.Command.
+Irrespective of how commands are presented to the dispatcher, commands are always presented to 1-argument handler functions as an instance of cmd.Command. By convention, dispatchers use the first argument of Command.unshifted() to
+select a handler from their dispatch tables.
 
 For example, assume the following declarations...
 
@@ -60,8 +95,8 @@ For example, assume the following declarations...
 Positional Arguments
 --------------------
 Handler functions can access an array of parsed arguments by invoking the command's shifted() function. 
-As a general rule, these arguments will have already been consumed in the process of identifying the handler
-to be invoked.
+As a general rule, shifted arguments will have already been consumed in the process of identifying 
+the handler to be invoked.
 
 Handler functions may access the remaining unparsed arguments by invoking the command's unshifted()
 function. As a general rule, these arguments have not been used for routing purposes and are usually
@@ -77,7 +112,8 @@ will be equivalent to [ arg2, arg3, ... ].
 Optional Arguments
 ------------------
 'cmd' does not currently offer any support for parsing optional arguments. However, the options
-member variable is reserved for the purpose of passing options along a handler chain, if so required.
+member variable of a Command is reserved for the purpose of passing options along a 
+handler chain, if so required.
 
 	 var aCmd = cmd.createCommand(positionalArgs);
 	 aCmd.options = {
@@ -86,11 +122,6 @@ member variable is reserved for the purpose of passing options along a handler c
 
 Shared state
 ------------
-It is expected that commands may be passed along a chain of handlers. However, it is not
-true that every handler along the instance will see exactly the same command instance. For example,
-when nested command handlers are used, the handlers at different nesting level will see command
-objects that have different implementations of the shifted() and unshifted() functions.
-
 Handlers that need to share state may use the command's shared() function to obtain a reference
 to the command's shared state object. It is up to handlers to choose an appropriate strategy
 to avoid namespace conflicts that might arise between different handlers.
@@ -117,64 +148,6 @@ of the shifted command.
 	aCmd.shared() === shiftedCmd.shared();
 	aCmd.options === shiftedCmd.options;
 
-Nested Handlers
----------------
-Handlers can be nested, thereby allowing the construction of modular command line processors where 
-different sub modules of the program are responsible handling different subcommands. For example:
-
-	 // someCmd.js
-	 var cmd=require("cmd");
-
-	 var fooDispatcher = cmd.createDispatcher({
-	     echo: function(cmd) {
-		   console.log("foo hears " + cmd.unshifted())
-	     }
-	 });
-	 var barDispatcher = cmd.createDispatcher({
-	     echo: function(cmd) {
-		   console.log("bar hears " + cmd.unshifted())
-	     }
-	 });
-
-	 var top = cmd.createDispatcher() {
-	     "foo": fooDispatcher,
-	     "bar": barDispatcher
-	 };
-
-	 top(process.argv.slice(2));
-
-	 $ node someCmd.js foo echo boo
-	 foo hears boo
-	 $ node someCmd.js bar echo bah
-	 bar hears bah
-
-Other Examples
---------------
-This example shows how the shifted() and unshifted() functions of a command can be used.
-
-      // example.js
-      var cmd=require("cmd");
-      cmd.createDispatcher({
-	 help: function() {
-	       console.log("display this message");
-	 },
-	 showargs: function(aCmd) {
-	       console.log("parsed: " + aCmd.shifted());
-	       console.log("unparsed: " + aCmd.unshifted());
-	 },
-	 unhandled: function(aCmd) {
-	       console.log("unrecognized command: " + aCmd.unshifted());
-	 }
-	 })(process.argv.slice(2));
-
-	 $ node example.js help
-	 display this message
-	 $ node example.js showargs foo bar
-	 cmd.parsed: showargs
-	 cmd.unparsed: foo,bar
-	 $ node example.js random foo bar
-	 unrecognized command: [ "random", "foo", "bar" ]
-
 Reserved Members
 ----------------
 Unless otherwise specified, all members of Command instances are considered to be reserved for future use.
@@ -183,6 +156,7 @@ Clients of the 'cmd' API may alter the 'object' member of Command instances and 
 object returned by shared(). Other modifications are not supported even if they may currently "work".
 
 So:
+
 	var aCmd = cmd.createCommand(...);
 
 	aCmd.options.myOpt = ...; // OK - changing a member of .options is allowed
