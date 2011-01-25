@@ -148,6 +148,39 @@ of the shifted command.
 	aCmd.shared() === shiftedCmd.shared();
 	aCmd.options === shiftedCmd.options;
 
+Configuring The Dispatcher
+--------------------------
+The configuration object passed to cmd.createDispatcher() is used to populate the dispatch,
+or lookup, table used by the generated dispatcher.
+
+In addition, the configuration object can be used to provide alternative implemntations 
+of key tactics used by the dispatcher's dispatching strategy. In particular:
+
+_parse(arguments) -> Command
+----------------------------
+_parse is used to convert the arguments presented to the dispatcher into a Command.
+The function is not called if the dispatcher is called with a single argument which is already
+an instance of Command.
+
+The default implementation creates a new command with cmd.createCommand() which exposes the 
+position arguments via the result of its unshifted() function.
+
+TODO: add support for parsing option switches of the form -fLaGs or --word.
+
+_select(Command cmd) -> aThunk()
+----------------------------
+This function creates a thunk which will call a function to handle the specified command.
+The default implementation will call the handler function looked up using the first unshifted
+argument and the result of cmd.shift(1), if there is one or _unhandled with the specified
+command otherwise.
+
+_unhandled(Command cmd) -> Object
+---------------------------------
+This is the function that is called by the thunk created by _select() in the case that
+_select is not able to find a more specific handler for the specified command. 
+The default implementation of _unhandled throws an Error if there are 
+any unshifted arguments or silently returns the specified Command otherwise.
+
 Reserved Members
 ----------------
 Unless otherwise specified, all members of Command instances are considered to be reserved for future use.
@@ -165,6 +198,9 @@ So:
 
 	aCmd.shared = new function() { ... }; // WRONG - alters the published API
 	aCmd.myFunc = new function() { ... }; // WRONG - alters the reserved name space
+
+The configuration object passed to createDispatcher should not have members that are prefixed with _ 
+unless the intent is to override default behaviours of the generated dispatcher.
 
 Tests
 -----
