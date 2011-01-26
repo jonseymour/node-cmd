@@ -127,7 +127,7 @@ This function returns a thunk which encapsulates a function and the command to b
 the function when the thunk is invoked. The default implementation of _select creates a
 thunk in which the encapsulated command is the result of calling shift(1) on the specified
 command and the encapsulated function is the result of looking up the dispatch table with
-unshifted()[0] on the specified command. If lookup fails, the returned thunk will
+unshifted()[0] of the specified command. If lookup fails, the returned thunk will
 encapsulate the dispatcher's _unhandled function and the specified command.
 
 _unhandled(Command cmd) -> Object
