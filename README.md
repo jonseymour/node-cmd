@@ -148,17 +148,6 @@ The dispatcher has one function member for each entry in its dispatcher table, i
 default _strategy, _parse, _select and _unhandled functions. It also has a function
 member, api, which is function that represents the public interface of the dispatcher.
 
-Positional Arguments
---------------------
-Handler functions can access an array of parsed arguments by invoking the command's shifted() function.
-As a general rule, shifted arguments will have already been consumed in the process of identifying
-the handler to be invoked. In particular, the last element of the shifted() array will usually contain
-the selector used by the dispatcher to lookup the handler function that is executing.
-
-Handler functions may access the remaining positional arguments by invoking the command's unshifted()
-function. As a general rule, these arguments have not been used for routing purposes and are usually
-viewed as arguments to be parsed by the handler function itself or by functions it delegates to.
-
 Optional Arguments
 ------------------
 The default parser sets a property in the command's options object for each argument of the form --name[=value].
@@ -166,36 +155,31 @@ If a value is not specified, then the value defaults to the empty string (""). A
 the command's option object is set to true for every character in an argument that starts with a single hyphen.
 A single argument of -- can be used to suspend interpretation of leading hypens in all following arguments.
 
-The command's shifted arguments are set to the arguments containing a leading hyphen and
-the unshifted arguments are set to the remaining positional arguments.
+Unshifted Positional Arguments
+------------------------------
+Handler functions may access the unshifted positional arguments of the command by invoking the command's unshifted()
+function which returns an array. As a general rule, these arguments have not been used for routing purposes
+and are usually viewed as arguments to be parsed by the handler function itself or by functions it delegates to.
+
+Shifted Arguments
+-----------------
+Handler functions may access an array of optional arguments and all previously shifted positional arguments
+using the command's shifted() function which returns an array. As a general rule, shifted arguments
+will have already been consumed in the process of routing the command via chain of one or more dispatchers.
+In particular, the last element of the shifted() array will usually contain the selector used by the current
+dispatcher to look up the current handler function.
+
+The Command.shift(n) operation
+------------------------------
+Handler functions that themselves act as dispatchers can use the Command.shift() operation on the
+specified command to create a new command in which N arguments have been shifted from the unshifted()
+array into the shifted() array (with respect to the specified command).
 
 Shared state
 ------------
 Handlers that need to share state may use the command's shared() function to obtain a reference
 to the command's shared state object. It is up to handlers to choose an appropriate strategy
 to avoid namespace conflicts that might arise between different handlers.
-
-The Command.shift(n) operation
-------------------------------
-The shift operation creates a new Command in which the specified number of unparsed arguments
-have been shifted from the LHS of result of unshifted() and into the RHS of shifted().
-
-Note that the original command is unchanged by a shift operation. It also acts as a prototype
-of the shifted command.
-
-        var aCmd = cmd.createCommand("switch1", "switch2", "arg1");
-        var shiftedCmd = aCmd.shift(1);
-
-        aCmd.unshifted() == [ "switch1", "switch2", "arg1" ];
-        aCmd.shifted() == [ ];
-
-        shiftedCmd.unshifted() == [ "switch2", "arg1" ];
-        shiftedCmd.shifted() == [ "switch1" ];
-
-        aCmd !== shiftedCmd
-
-        aCmd.shared() === shiftedCmd.shared();
-        aCmd.options === shiftedCmd.options;
 
 Reserved Members
 ================
