@@ -117,9 +117,8 @@ The function is not called if the dispatcher is called with a single argument wh
 an instance of Command.
 
 The default implementation creates a new command with cmd.createCommand() which exposes the
-positional arguments via its unshifted() function.
-
-A future version will also support parsing -fLaGs and --word[=value] style options.
+positional arguments via its unshifted() function. Any arguments containing option switches or
+flags are used to populate the options object and set the shifted() array.
 
 _select(Command cmd) -> aThunk()
 --------------------------------
@@ -162,14 +161,13 @@ viewed as arguments to be parsed by the handler function itself or by functions 
 
 Optional Arguments
 ------------------
-'cmd' does not currently offer any support for parsing optional arguments. However, the options
-member variable of a Command is reserved for the purpose of passing options along a
-handler chain, if so required.
+The default parser sets a property in the command's options object for each argument of the form --name[=value].
+If value is not specified, then it defaults to the empty string (""). Additionally, one property is set
+to true for every flag in an argument that starts with a single hyphen. A single argument of -- can be
+used to suspend interpretation of leading hypens in all following arguments.
 
-         var aCmd = cmd.createCommand(positionalArgs);
-         aCmd.options = {
-                     // options parsed by some other means.
-         };
+The shifted arguments of the command are set to the optional arguments and the unshifted arguments
+are set to the remaining positional arguments.
 
 Shared state
 ------------
