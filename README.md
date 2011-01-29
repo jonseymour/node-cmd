@@ -162,12 +162,12 @@ viewed as arguments to be parsed by the handler function itself or by functions 
 Optional Arguments
 ------------------
 The default parser sets a property in the command's options object for each argument of the form --name[=value].
-If value is not specified, then it defaults to the empty string (""). Additionally, one property is set
-to true for every flag in an argument that starts with a single hyphen. A single argument of -- can be
-used to suspend interpretation of leading hypens in all following arguments.
+If a value is not specified, then the value defaults to the empty string (""). Additionally, one property of
+the command's option object is set to true for every character in an argument that starts with a single hyphen.
+A single argument of -- can be used to suspend interpretation of leading hypens in all following arguments.
 
-The shifted arguments of the command are set to the optional arguments and the unshifted arguments
-are set to the remaining positional arguments.
+The command's shifted arguments are set to the arguments containing a leading hyphen and
+the unshifted arguments are set to the remaining positional arguments.
 
 Shared state
 ------------
@@ -175,9 +175,8 @@ Handlers that need to share state may use the command's shared() function to obt
 to the command's shared state object. It is up to handlers to choose an appropriate strategy
 to avoid namespace conflicts that might arise between different handlers.
 
-
 The Command.shift(n) operation
-==============================
+------------------------------
 The shift operation creates a new Command in which the specified number of unparsed arguments
 have been shifted from the LHS of result of unshifted() and into the RHS of shifted().
 
@@ -243,7 +242,6 @@ Changes
 
 TODO
 ====
-* implement the -fLaGs and --word[=value] parser as part of Dispatcher._parse
 * add support for dispatcher chaining
 
 Author
