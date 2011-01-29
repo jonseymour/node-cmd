@@ -136,5 +136,47 @@ module.exports = {
 		 unshifted: [ "baz" ],
 		 options: {}
 	     });
+    },
+    "test dispatch: -x": function() {
+	test(["-x"], {
+		 shifted: [ "-x" ],
+		 unshifted: [ ],
+		 options: { x: true }
+	     });
+    },
+    "test dispatch: -xYz": function() {
+	test(["-xYz"], {
+		 shifted: [ "-xYz" ],
+		 unshifted: [ ],
+		 options: { x: true, Y:true, z:true }
+	     });
+    },
+    "test dispatch: --name": function() {
+	test(["--name"], {
+		 shifted: [ "--name" ],
+		 unshifted: [ ],
+		 options: { name: "" }
+	     });
+    },
+    "test dispatch: --name=": function() {
+	test(["--name="], {
+		 shifted: [ "--name=" ],
+		 unshifted: [ ],
+		 options: { name: "" }
+	     });
+    },
+    "test dispatch: --name=value": function() {
+	test(["--name=value"], {
+		 shifted: [ "--name=value" ],
+		 unshifted: [ ],
+		 options: { name: "value" }
+	     });
+    },
+    "test dispatch: --": function() {
+	test(["--"], {
+		 shifted: [ "--" ],
+		 unshifted: [ ],
+		 options: { }
+	     });
     }
 }
