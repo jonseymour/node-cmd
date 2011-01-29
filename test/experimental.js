@@ -178,5 +178,19 @@ module.exports = {
 		 unshifted: [ ],
 		 options: { }
 	     });
+    },
+    "test dispatch: -x -- -y": function() {
+	test(["-x", "--", "-y"], {
+		shifted: [ "-x", "--" ],
+		unshifted: [ "-y" ],
+		options: { x: true }
+	     });
+    },
+    "test dispatch: --twice=foo --twice=bar": function() {
+	test(["--twice=foo", "--twice=bar"], {
+		shifted: [ "--twice=foo", "--twice=bar" ],
+		unshifted: [ ],
+		options: { twice: "bar" }
+	     });
     }
 }
