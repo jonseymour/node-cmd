@@ -8,7 +8,7 @@ Synopsis
          var cmd=require("cmd"); // import the module
 
          // create a dispatcher
-         var dispatcher=cmd.createDispatcher( { handler1: function() { ... }, handler2: function () { ... } } );
+         var dispatcher=cmd.use( { handler1: function() { ... }, handler2: function () { ... } } );
 
          // pass a command to the dispatcher as an array
          dispatcher([ "handler1", args ... ]);
@@ -35,12 +35,12 @@ For example, suppose that a utility called "tool" contains two sub-modules "foo"
       var cmd=require("cmd");
 
       // in bar.js
-      exports.dispatcher = cmd.createDispatcher({
+      exports.dispatcher = cmd.use({
         "add": function(aCmd) { ... }
       });
 
       // in foo.js
-      exports.dispatcher = cmd.createDispatcher({
+      exports.dispatcher = cmd.use({
         "list": function(aCmd) { ... }
       });
 
@@ -49,7 +49,7 @@ For example, suppose that a utility called "tool" contains two sub-modules "foo"
       var foo=require("./foo");
       var bar=require("./bar");
 
-      var toolDispatcher = cmd.createDispatcher({
+      var toolDispatcher = cmd.use({
           "foo": foo.dispatcher,
           "bar": bar.dispatcher
       });
@@ -77,7 +77,7 @@ For example, assume the following declarations...
                    switch1: handler1,
                    switch2: handler2
              },
-             dispatcher = cmd.createDispatcher(dispatchTable),
+             dispatcher = cmd.use(dispatchTable),
              arg1 = 'switch1',
              arg2 = ...,
              arg3 = ...;
@@ -95,7 +95,7 @@ For example, assume the following declarations...
 
 Configuring The Dispatcher
 ==========================
-The configuration object passed to cmd.createDispatcher() is used to populate the dispatch
+The configuration object passed to cmd.use() is used to populate the dispatch
 table used by the generated dispatcher.
 
 In addition, the configuration object can be used to provide alternative implemntations
@@ -199,7 +199,7 @@ So:
         aCmd.shared = new function() { ... }; // WRONG - alters the published API
         aCmd.myFunc = new function() { ... }; // WRONG - alters the reserved name space
 
-The configuration object passed to createDispatcher should not have members that are prefixed with _
+The configuration object passed to use should not have members that are prefixed with _
 unless the intent is to override default behaviours of the generated dispatcher.
 
 Tests
@@ -221,8 +221,21 @@ Experimental parts of the API will be documented by tests in test/experimental.j
 
 Changes
 =======
-* changed name of Command.unparsed to Command.unshifted
-* changed name of Command.parsed to Command.shifted
+<dl>
+<dt>v0.0.4</dt>
+<dd>
+<ul>
+<li>deprecated createDispatcher in favour of use</li>
+<li>add support for --console-to-stderr, via idiomatic-stdio</li>
+</ul>
+</dd>
+<dt>earlier releases</dt>
+<dd>
+<ul>
+<li>changed name of Command.unparsed to Command.unshifted</li>
+<li>changed name of Command.parsed to Command.shifted</li>
+</dd>
+</dl>
 
 TODO
 ====
