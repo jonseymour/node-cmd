@@ -6,23 +6,23 @@ var cmd=require("cmd"),
 
 module.exports = {
     "test empty dispatcher, no handler" : function() {
-	var dispatcher = cmd.createDispatcher();
+	var dispatcher = cmd.use();
 	assert.throws(function() {
 		dispatcher(["one"]);
 	    });
     },
     "test empty dispatcher, no arguments" : function() {
-	var dispatcher = cmd.createDispatcher();
+	var dispatcher = cmd.use();
 	dispatcher();
     },
     "test empty dispatcher, arbitrary object" : function() {
-	var dispatcher = cmd.createDispatcher();
+	var dispatcher = cmd.use();
 	assert.throws(function() {
 		dispatcher({});
 	    });
     },
     "test non-empty dispatcher, valid handler" : function() {
-	var dispatcher = cmd.createDispatcher({
+	var dispatcher = cmd.use({
 		"method": function (cmd) {
 		    cmd.shared().good = true;
 		    return cmd;
@@ -35,7 +35,7 @@ module.exports = {
 	assert.eql(true, result.shared().good);
     },
     "test non-empty dispatcher, valid handler, two args" : function() {
-	var dispatcher = cmd.createDispatcher({
+	var dispatcher = cmd.use({
 		"method": function (cmd) {
 		    cmd.shared().good = true;
 		    cmd.shared().unshifted = cmd.unshifted();
@@ -51,7 +51,7 @@ module.exports = {
 	assert.eql(["arg"], result.shared().unshifted);
     },
     "test non-empty dispatcher, valid handler - via anonymous function" : function() {
-	var dispatcher = cmd.createDispatcher({
+	var dispatcher = cmd.use({
 		"method": function (cmd) {
 		    cmd.shared().good = true;
 		    return cmd;
@@ -67,7 +67,7 @@ module.exports = {
 	var key={ "a": true  };
 	var config={};
 	config[key]=function(cmd) { return cmd; };
-	var dispatcher = cmd.createDispatcher(config);
+	var dispatcher = cmd.use(config);
 	var result = dispatcher({ "a": true });
 	assert.isDefined(result);
 	assert.type(result, "object");
@@ -76,8 +76,8 @@ module.exports = {
 	assert.eql(key, result.shifted()[0]);
     },
     "test nested dispatch" : function() {
-	var dispatcher = cmd.createDispatcher({
-		"outer": cmd.createDispatcher({
+	var dispatcher = cmd.use({
+		"outer": cmd.use({
 		    "inner": function(x) {
 			return x.unshifted();
 		    }})

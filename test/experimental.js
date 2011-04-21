@@ -10,7 +10,7 @@
 
 var CMD=require("cmd"),
     assert=require("assert"),
-    DISPATCHER=CMD.createDispatcher({
+    DISPATCHER=CMD.use({
 		foo : function(cmd) {
 		    return {
 			subject: this,
