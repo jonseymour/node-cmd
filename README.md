@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/jonseymour/node-cmd.png)](http://travis-ci.org/jonseymour/node-cmd)
 Name
 =====
          cmd - a node.js API for building modular command line glue for node.js programs
